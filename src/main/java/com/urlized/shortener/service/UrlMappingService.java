@@ -52,7 +52,7 @@ public class UrlMappingService {
         String validCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random = new Random();
         StringBuilder shortUrl = new StringBuilder(8);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 3; i++) {
             shortUrl.append(validCharacters.charAt(random.nextInt(validCharacters.length())));
         }
         return shortUrl.toString();
@@ -62,10 +62,10 @@ public class UrlMappingService {
         return urlMappingRepository.findByUser(user).stream().map(this::convertToDTO).toList();
     }
 
-    public List<ClickEventDTO> getClickEventsByDate(String shortUrl, LocalDateTime start, LocalDateTime end) {
+    public List<ClickEventDTO> getClickEventsByDate(String shortUrl) {
         UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl);
         if (urlMapping != null) {
-            return clickEventRepository.findByUrlMappingAndClickDateBetween(urlMapping, start, end).stream()
+            return clickEventRepository.findByUrlMapping(urlMapping).stream()
                     .collect(Collectors.groupingBy(click -> click.getClickDate().toLocalDate(), Collectors.counting()))
                     .entrySet().stream()
                     .map(entry -> {
@@ -73,15 +73,15 @@ public class UrlMappingService {
                         clickEventDTO.setClickDate(entry.getKey());
                         clickEventDTO.setCount(entry.getValue());
                         return clickEventDTO;
-                    })
-                    .collect(Collectors.toList());
+                    }).toList();
+
         }
         return null;
     }
 
-    public Map<LocalDate, Long> getTotalClicksByUserAndDate(User user, LocalDate start, LocalDate end) {
+    public Map<LocalDate, Long> getTotalClicksByUserAndDate(User user) {
         List<UrlMapping> urlMappings = urlMappingRepository.findByUser(user);
-        List<ClickEvent> clickEvents = clickEventRepository.findByUrlMappingInAndClickDateBetween(urlMappings, start.atStartOfDay(), end.atTime(23,59,59));
+        List<ClickEvent> clickEvents = clickEventRepository.findByUrlMappingIn(urlMappings);
         return clickEvents.stream()
                 .collect(Collectors.groupingBy(click -> click.getClickDate().toLocalDate(), Collectors.counting()));
 

@@ -46,28 +46,20 @@ public class UrlMappingController {
 
     @GetMapping("/analytics/{shortUrl}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ClickEventDTO>> getUrlAnalytics(@PathVariable String shortUrl,
-                                                               @RequestParam("startDate") String startDate,
-                                                               @RequestParam("endDate") String endDate){
+    public ResponseEntity<List<ClickEventDTO>> getUrlAnalytics(@PathVariable String shortUrl){
 
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
-        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
-        List<ClickEventDTO> clickEventDTOS = urlMappingService.getClickEventsByDate(shortUrl, start, end);
+        List<ClickEventDTO> clickEventDTOS = urlMappingService.getClickEventsByDate(shortUrl);
         return ResponseEntity.ok(clickEventDTOS);
 
     }
 
     @GetMapping("/totalClicks")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Map<LocalDate, Long>> getTotalClicksByDate(Principal principal,
-                                                                     @RequestParam("startDate") String startDate,
-                                                                     @RequestParam("endDate") String endDate){
+    public ResponseEntity<Map<LocalDate, Long>> getTotalClicksByDate(Principal principal
+                                                                     ){
         User user = userService.findByUsername(principal.getName());
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        LocalDate start = LocalDate.parse(startDate, formatter);
-        LocalDate end = LocalDate.parse(endDate, formatter);
-        Map<LocalDate, Long> totalClicks = urlMappingService.getTotalClicksByUserAndDate(user, start, end);
+
+        Map<LocalDate, Long> totalClicks = urlMappingService.getTotalClicksByUserAndDate(user);
         return ResponseEntity.ok(totalClicks);
     }
 }
