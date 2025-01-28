@@ -1,6 +1,4 @@
 package com.urlized.shortener.service;
-
-
 import com.urlized.shortener.models.User;
 import com.urlized.shortener.repository.UserRepository;
 import jakarta.transaction.Transactional;
